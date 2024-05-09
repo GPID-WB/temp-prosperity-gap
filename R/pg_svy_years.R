@@ -69,8 +69,9 @@ pg_national <-
   pg_area |>
   ftransform(area = "national") |>
   fgroup_by(id, area, welfare_type, survey_year) |>
-  fselect(pg, weight) |>
-  fmean(weight, stub = FALSE) |>
+  fselect(pg, sum.weight) |>
+  fmean(sum.weight, stub = FALSE) |>
+  frename(sum.weight = sum.sum.weight) |>
   fungroup()
 
 ## Append both ---------
