@@ -52,6 +52,50 @@ ld <- purrr::imap(data_files, \(x, y) {
 dt <- rowbind(ld)
 tictoc::toc()
 
+dt[,
+  c("country_code", "year") := tstrsplit(id, split = "_", keep = c(1, 2))]
+
+# df <- copy(dt)
+dt <- copy(df)
+
+# Merge CPI -----------
+
+cpi <- pipload::pip_load_aux("cpi")
+
+
+## counting variable ---------
+cpi[, count := fifelse(cpi_data_level == "national", 2, 1)]
+
+## expand data --------
+ecpi <-
+  cpi[
+    # expand data ----------
+    rep(1:.N, count)
+    ][,
+      # differentiate rural from urban -----------
+     indx := 1:.N,
+     by =  c("country_code",
+             "cpi_year",
+             "survey_year",
+             "survey_acronym")
+     ][,
+       ## area var to merge -----------
+       area := fcase(count == 2 & indx == 1, "rural",
+                     count == 2 & indx == 2, "urban",
+                     default = "")
+       ][,
+         area := fifelse(area == "", cpi_data_level, area)
+         ][,
+           ## filter vars -------------
+           .( country_code, cpi_year, survey_year, survey_acronym, cpi, area)
+           ]
+setnames(ecpi, "cpi_year", "year")
+## actual merge ------------
+dt <- joyn::joyn(dt, ecpi,
+                 by = c("country_code", "year", "area"),
+                 match_type = "1:1")
+
+
 
 # calculate PG ---------
 
@@ -76,9 +120,7 @@ pg_national <-
 ## Append both ---------
 ft <- rowbind(pg_area, pg_national)
 
-ft[,
-   c("country_code", "year") := tstrsplit(id, split = "_", keep = c(1, 2))
-   ][, id := NULL]
+ft[, id := NULL]
 
 setcolorder(ft, c("country_code", "year"))
 setorderv(ft, c("country_code", "area", "year"))
