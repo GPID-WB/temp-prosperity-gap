@@ -58,7 +58,7 @@ tictoc::toc()
 ## by area ---------
 pg_area <-
   dt |>
-  ftransform(pg = ps/welfare) |>
+  ftransform(pg = ps/welfare_ppp) |>
   fgroup_by(id, area) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
