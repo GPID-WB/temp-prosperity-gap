@@ -59,7 +59,7 @@ tictoc::toc()
 pg_area <-
   dt |>
   ftransform(pg = ps/welfare_ppp) |>
-  fgroup_by(id, area) |>
+  fgroup_by(id, area, welfare_type, survey_year) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
   fungroup()
@@ -68,7 +68,7 @@ pg_area <-
 pg_national <-
   pg_area |>
   ftransform(area = "national") |>
-  fgroup_by(id, area) |>
+  fgroup_by(id, area, welfare_type, survey_year) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
   fungroup()
