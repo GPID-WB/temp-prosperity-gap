@@ -101,15 +101,15 @@ df <- joyn::joyn(dt, emn,
 
 ## deflate to ppp ----------------
 df[,
-   weflare_ppp := welfare * (survey_mean_lcu/survey_mean_ppp)]
+   weflare_ppp := welfare * (survey_mean_ppp/survey_mean_lcu)]
 
 # calculate PG ---------
 
 ## by area ---------
 pg_area <-
   df |>
-  ftransform(pg = ps/welfare) |>
-  fgroup_by(id, area) |>
+  ftransform(pg = ps/weflare_ppp) |>
+  fgroup_by(cache_id, survey_year, area) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
   fungroup()
@@ -118,7 +118,7 @@ pg_area <-
 pg_national <-
   pg_area |>
   ftransform(area = "national") |>
-  fgroup_by(id, area) |>
+  fgroup_by(cache_id, survey_year, area) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
   fungroup()
@@ -126,7 +126,11 @@ pg_national <-
 ## Append both ---------
 ft <- rowbind(pg_area, pg_national)
 
-ft[, id := NULL]
+ft[,
+   c("country_code", "year", "welfare_type") :=
+     tstrsplit(cache_id, split = "_", keep = c(1, 2, 5))
+   ][,
+     cache_id := NULL]
 
 setcolorder(ft, c("country_code", "year"))
 setorderv(ft, c("country_code", "area", "year"))
