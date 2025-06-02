@@ -9,11 +9,16 @@ library(fastverse)
 version  <- "20240326_2017_01_02_PROD"
 version  <- "20240429_2017_01_02_INT"
 version  <- "20240627_2017_01_02_PROD"
+version  <- "20240627_2011_02_02_PROD"
+version  <- "20250401_2021_01_02_PROD"
+version  <- "20250401_2017_01_02_PROD"
 ppp_year <- sub("(.+_)([0-9]{4})(_.+)", "\\2", version) |>
   as.numeric()
 
 ## ppp year --------
-if (ppp_year == 2017) {
+if (ppp_year == 2021) {
+  ps <- 28
+} else if (ppp_year == 2017) {
   ps <- 25
 } else if (ppp_year == 2011) {
   ps <- 22
@@ -30,8 +35,8 @@ gls <- pipfun::pip_create_globals(
   vintage    = version,
   create_dir = FALSE,
   max_year_country   = 2023,
-  max_year_aggregate = 2024,
-  max_year_lineup    = 2022
+  max_year_aggregate = 2025,
+  max_year_lineup    = 2023
 )
 
 

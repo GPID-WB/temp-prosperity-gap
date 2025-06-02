@@ -9,6 +9,7 @@ dir <-
 files <- c("pg_lnp", "pg_svy")
 
 .x <- "pg_svy"
+.x <- "pg_lnp"
 
 l <- lapply(files, \(.x) {
 
