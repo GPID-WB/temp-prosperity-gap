@@ -7,9 +7,10 @@ library(fastverse)
 
 ## data files ---------
 version  <- "20250401_2017_01_02_PROD"
-version  <- "20250401_2021_01_02_PROD"
 version  <- "20250930_2017_01_02_PROD"
+version  <- "20250401_2021_01_02_PROD"
 version  <- "20250930_2021_01_02_PROD"
+version  <- "20250930_2017_01_02_PROD"
 ppp_year <- sub("(.+_)([0-9]{4})(_.+)", "\\2", version) |>
   as.numeric()
 
@@ -59,5 +60,31 @@ rename_var <- \(dt, old, new) {
 
   setnames(dt, old, new)
 }
+
+
+
+
+
+root_dir <- Sys.getenv("PIPAPI_DATA_ROOT_FOLDER_LOCAL") |>
+  fs::path()
+fs::dir_ls(root_dir, recurse = FALSE)
+
+#
+latest_version <-
+  pipapi:::available_versions(root_dir) |>
+  max()
+
+# lkups <- create_versioned_lkups(root_dir,
+#                                 vintage_pattern = "^202509.+2017.+(PROD)$")
+lkups <- pipapi::create_versioned_lkups(root_dir,
+                                vintage_pattern = latest_version)
+
+# lkup <- lkups$versions_paths[[lkups$versions[[2]]]]
+lkup <- lkups$versions_paths[[lkups$latest_release]]
+
+
+
+
+
 
 
