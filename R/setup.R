@@ -6,11 +6,9 @@ library(fastverse)
 # remotes::install_github("PIP-Technical-Team/pipapi@DEV")
 
 ## data files ---------
-version  <- "20250401_2017_01_02_PROD"
-version  <- "20250930_2017_01_02_PROD"
-version  <- "20250401_2021_01_02_PROD"
-version  <- "20250930_2021_01_02_PROD"
-version  <- "20250930_2017_01_02_PROD"
+version <- "20260324_2021_01_02_PROD"
+version <- "20260324_2017_01_02_PROD"
+
 ppp_year <- sub("(.+_)([0-9]{4})(_.+)", "\\2", version) |>
   as.numeric()
 
@@ -26,27 +24,27 @@ if (ppp_year == 2021) {
 }
 
 
-
-
 gls <- pipfun::pip_create_globals(
-  root_dir   = Sys.getenv("PIP_ROOT_DIR"),
+  root_dir = Sys.getenv("PIP_ROOT_DIR"),
   # out_dir    = fs::path("y:/pip_ingestion_pipeline/temp/"),
-  vintage    = version,
+  vintage = version,
   create_dir = FALSE,
-  max_year_country   = 2024,
-  max_year_aggregate = 2025,
-  max_year_lineup    = 2024
+  max_year_country <- 2025,
+  max_year_aggregate <- 2026,
+  max_year_lineup <- 2026
 )
 
 
 # functions -----------
 remove_var <- \(dt, x) {
   x_in_dt <- names(dt)[names(dt) %in% x]
-  if (length(x_in_dt) == 0)
+  if (length(x_in_dt) == 0) {
     return(invisible(dt))
+  }
 
   dt[,
-     (x_in_dt) := NULL]
+    (x_in_dt) := NULL
+  ]
   dt
 }
 
@@ -62,9 +60,6 @@ rename_var <- \(dt, old, new) {
 }
 
 
-
-
-
 root_dir <- Sys.getenv("PIPAPI_DATA_ROOT_FOLDER_LOCAL") |>
   fs::path()
 fs::dir_ls(root_dir, recurse = FALSE)
@@ -76,15 +71,10 @@ latest_version <-
 
 # lkups <- create_versioned_lkups(root_dir,
 #                                 vintage_pattern = "^202509.+2017.+(PROD)$")
-lkups <- pipapi::create_versioned_lkups(root_dir,
-                                vintage_pattern = latest_version)
+lkups <- pipapi::create_versioned_lkups(
+  root_dir,
+  vintage_pattern = latest_version
+)
 
 # lkup <- lkups$versions_paths[[lkups$versions[[2]]]]
 lkup <- lkups$versions_paths[[lkups$latest_release]]
-
-
-
-
-
-
-

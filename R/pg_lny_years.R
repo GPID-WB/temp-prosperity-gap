@@ -1,11 +1,11 @@
+# Delay execution for 1.5 hours
+# Sys.sleep(1.5 * 60 * 60)
 
 source("R/setup.R")
 
 # get data -----------
 data_files <-
-  fs::path("E:/PIP/pipapi_data",
-           version,
-           "lineup_data") |>
+  fs::path("E:/PIP/pipapi_data", version, "lineup_data") |>
   # root_dir |>
   # fs::path(version) |>
   fs::dir_ls(regexp = "fst$", type = "file")
@@ -34,21 +34,16 @@ if (manual) {
 cols <- c("reporting_level", "welfare", "weight", "index")
 
 tictoc::tic()
-ld <- lapply(cli::cli_progress_along(data_files),
-                 \(i) {
-                   x <- data_files[[i]]
-                   y <- files_names[i]
-                   dt <- fst::read_fst(x,
-                        as.data.table = TRUE,
-                        columns = cols)
-                   dt[index > 0
-                      ][,
-                        id := y
-                        ][, index := NULL]
+ld <- lapply(cli::cli_progress_along(data_files), \(i) {
+  x <- data_files[[i]]
+  y <- files_names[i]
+  dt <- fst::read_fst(x, as.data.table = TRUE, columns = cols)
+  dt[index > 0][,
+    id := y
+  ][, index := NULL]
 })
 dt <- rowbind(ld, fill = TRUE)
 tictoc::toc()
-
 
 
 # calculate PG ---------
@@ -56,7 +51,7 @@ tictoc::toc()
 ## by area ---------
 pg_area <-
   dt |>
-  ftransform(pg = ps/welfare) |>
+  ftransform(pg = ps / welfare) |>
   fgroup_by(id, reporting_level) |>
   fselect(pg, weight) |>
   fmean(weight, stub = FALSE) |>
@@ -65,7 +60,7 @@ pg_area <-
 ## national ---------
 pg_national <- dt |>
   fsubset(reporting_level != "national") |>
-  ftransform(pg = ps/welfare) |>
+  ftransform(pg = ps / welfare) |>
   ftransform(reporting_level = "national") |>
   fgroup_by(id, reporting_level) |>
   fselect(pg, weight) |>
@@ -79,17 +74,23 @@ ft <- rowbind(pg_area, pg_national) |>
   na_omit()
 
 ft[,
-   c("country_code", "reporting_year") :=
-     tstrsplit(id, split = "_", keep = c(1, 2))
+  c("country_code", "reporting_year") := tstrsplit(
+    id,
+    split = "_",
+    keep = c(1, 2)
+  )
 ][,
   reporting_year := as.numeric(reporting_year)
-  ][,
-  id := NULL]
+][,
+  id := NULL
+]
 
 setcolorder(ft, c("country_code", "reporting_year"))
-setorderv(ft,
-          c("country_code", "reporting_level", "reporting_year", "weight"),
-          c(1, 1, 1, -1))
+setorderv(
+  ft,
+  c("country_code", "reporting_level", "reporting_year", "weight"),
+  c(1, 1, 1, -1)
+)
 
 dups <- gv(ft, c("country_code", "reporting_year", "reporting_level")) |>
   fduplicated()
@@ -101,7 +102,6 @@ dp[]
 sv <- ft[!dups]
 
 
-
 # Save results-----------
 
 ## output dir -----------
@@ -111,22 +111,18 @@ outdir <-
   fs::dir_create(version, "lny_years")
 
 ## save in different formats ---
-filename <-  fs::path(outdir, "pg_lnp", ext = "fst")
+filename <- fs::path(outdir, "pg_lnp", ext = "fst")
 
 if (manual) {
   fpg <- fst::read_fst(filename, as.data.table = TRUE)
-
 }
 
 
-
-
-
-fst::write_fst(sv,filename, compress = 0)
+fst::write_fst(sv, filename, compress = 0)
 
 
 fs::path_ext_set(filename, "dta") |>
-    haven::write_dta(sv, path = _)
+  haven::write_dta(sv, path = _)
 
 
 ts <- fst::read_fst(filename, as.data.table = TRUE)
