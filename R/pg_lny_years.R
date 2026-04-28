@@ -21,9 +21,10 @@ data_files <- as.list(data_files) |>
 # files_names <- files_names[sample(1:100, 10)]
 # data_files  <- data_files[files_names]
 
-manual <- FALSE
+manual <- TRUE
 if (manual) {
   ws <- grep("SVK_198[1-4]", files_names)
+  ws <- grep("IDN_2025", files_names)
   data_files <- data_files[ws]
   files_names <- files_names[ws]
 }

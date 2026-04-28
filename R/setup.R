@@ -6,8 +6,9 @@ library(fastverse)
 # remotes::install_github("PIP-Technical-Team/pipapi@DEV")
 
 ## data files ---------
-version <- "20260324_2021_01_02_PROD"
-version <- "20260324_2017_01_02_PROD"
+
+version <- "20260430_2021_01_02_INT"
+version <- "20260430_2017_01_02_INT"
 
 ppp_year <- sub("(.+_)([0-9]{4})(_.+)", "\\2", version) |>
   as.numeric()
